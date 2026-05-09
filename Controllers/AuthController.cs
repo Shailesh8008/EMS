@@ -11,7 +11,8 @@ namespace EMS.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Home");
+                string role = GetRole();
+                return RedirectToAction("Index", $"{role}");
             }
             return View();
         }
@@ -26,8 +27,9 @@ namespace EMS.Controllers
                     TempData["Message"] = result.Message;
                     return View("Login");
                 }
-                TempData["Message"] = result.Message;
-                return RedirectToAction("Index", "Home");
+                string role = GetRole();
+
+                return RedirectToAction("Index", $"{role}");
             }
             catch (Exception)
             {
@@ -35,6 +37,33 @@ namespace EMS.Controllers
                 return View("Login");
                 throw;
             }
+        }
+
+        public async Task<IActionResult> HandleLogout()
+        {
+            try
+            {
+                var result = await _authService.Logout();
+                TempData["Message"] = result.Message;
+                return RedirectToAction("Login");
+            }
+            catch (Exception)
+            {
+                TempData["Message"] = "Internal Server error";
+                return RedirectToAction("Login");
+                throw;
+            }
+        }
+
+        private string GetRole()
+        {
+            string role = "Employee";
+            if (User.IsInRole("Admin"))
+                role = "Admin";
+            else if (User.IsInRole("Manager"))
+                role = "Manager";
+
+            return role;
         }
     }
 }

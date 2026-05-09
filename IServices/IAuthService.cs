@@ -6,5 +6,6 @@ namespace EMS.IServices
     public interface IAuthService
     {
         Task<ServiceResponse<string>> Login(LoginUserDto user);
+        Task<ServiceResponse<string>> Logout();
     }
 }

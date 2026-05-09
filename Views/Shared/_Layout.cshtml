@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,22 +18,35 @@
                 <h1 class="h3 fw-bold mb-0">EMS Portal</h1>
                 <small class="text-muted">Enterprise Employee Management System</small>
             </a>
-
-            @if (ViewData["Title"]?.ToString() != "Login")
+            <nav class="d-none d-md-flex gap-4 fw-medium align-items-center">
+            @if (User.IsInRole("Admin"))
             {
-                <nav class="d-none d-md-flex gap-4 fw-medium">
+                    <a href="#" class="text-decoration-none text-dark">Employees</a>
+                    <a href="#" class="text-decoration-none text-dark">Managers</a>
                     <a href="#" class="text-decoration-none text-dark">Dashboard</a>
+             
+            } else if (User.IsInRole("Manager")) {
                     <a href="#" class="text-decoration-none text-dark">Employees</a>
                     <a href="#" class="text-decoration-none text-dark">Attendance</a>
                     <a href="#" class="text-decoration-none text-dark">Leave Requests</a>
-                </nav>
+                    <a href="#" class="text-decoration-none text-dark">Dashboard</a>
+            } else if (User.IsInRole("Employee")) {
+                    <a href="#" class="text-decoration-none text-dark">My Task</a>
+                    <a href="#" class="text-decoration-none text-dark">Leave Request</a>
+                    <a href="#" class="text-decoration-none text-dark">Notifications</a>
+                    <a href="#" class="text-decoration-none text-dark">Dashboard</a>
             }
-            
+            @if (User.Identity.IsAuthenticated)
+            {
+                   <button class="text-danger btn fw-semibold border-danger border-2" data-bs-toggle="modal" data-bs-target="#myModal">Logout</button>
+            }
+            </nav>
         </div>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
+            <partial name="_MyModel" />
         </main>
     </div>
 
