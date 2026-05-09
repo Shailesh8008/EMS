@@ -1,0 +1,54 @@
+﻿using EMS.Models;
+using Microsoft.AspNetCore.Identity;
+
+namespace EMS.Data
+{
+    public class DbSeeder
+    {
+        public static async Task SeedData(IServiceProvider serviceProvider, string adminEmail, string adminPassword)
+        {
+            try
+            {
+                var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+                var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                string[] roles = { "Admin", "Manager", "Employee" };
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                }
+
+                var adminExists = await userManager.FindByEmailAsync(adminEmail);
+                if (adminExists == null)
+                {
+                    var admin = new User
+                    {
+                        UserName = adminEmail,
+                        FullName = adminEmail,
+                        Email = adminEmail,
+                        EmailConfirmed = true
+                    };
+                    var createResult = await userManager.CreateAsync(admin, adminPassword);
+
+                    if (createResult.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(admin, "Admin");
+                    }
+                    else
+                    {
+                        var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                        throw new Exception($"Admin creation failed: {errors}");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("--------------------------------------Error Seeding initial data (Roles and Admin details)--------------------------------------");
+                throw;
+            }
+        }
+    }
+}

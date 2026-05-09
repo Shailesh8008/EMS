@@ -12,6 +12,30 @@ namespace EMS.Data
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<User>()
+                .HasOne(u => u.Employee)
+                .WithOne(e => e.User)
+                .HasForeignKey<Employee>(e => e.UserId);
+
+            builder.Entity<Employee>()
+                .HasOne(e => e.Department)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(e => e.DepartmentId);
+
+            builder.Entity<Employee>()
+                .HasMany(e => e.Attendances)
+                .WithOne(a => a.Employee)
+                .HasForeignKey(a => a.EmployeeId);
+
+            builder.Entity<Employee>()
+                .HasMany(e => e.LeaveRequests)
+                .WithOne(l => l.Employee)
+                .HasForeignKey(l => l.EmployeeId);
+        }
 
     }
 }
